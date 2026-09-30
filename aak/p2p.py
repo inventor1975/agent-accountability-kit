@@ -39,6 +39,10 @@ from ztljudgenode import Node, audit, _canon  # noqa: E402
 WINDOW = 5
 SPAN = 5
 FORMULA_MAX = 8          # above this many supporters the verdict is counted (equal, tested)
+# MIN_VOTES over public seats (the swarm's rule, taken as is: "a verdict needs >= 12 trusted
+# votes"). Measured 30.09 on a holdout: at 40-50% message loss a judge got 5 statements of 81
+# seats, all from colluders, 2 of them trusted - quorum 2 met, no contradiction, a false EARNED.
+MIN_VOTES = 12
 
 
 # ---- ZONES: a tree of triples (from the ZTL swarm work). Every fact gets SEATS drawn by
@@ -223,11 +227,37 @@ class Peer:
             return decided.pop(), "EARNED"
         return None, "OPEN"
 
+    def contested_share(self, fact, fact_seats):
+        """Share of leaf triples that hold both a trusted 'true' and a trusted 'false'."""
+        held = self.held.get(fact, {})
+        units = [("g" if held[s] else "b") if (s in held and self._mark(s, fact) == "T") else "r"
+                 for s in fact_seats]
+        trip = [units[i:i + 3] for i in range(0, len(units), 3)]
+        live = [x for x in trip if sum(u != "r" for u in x) >= 2]
+        return (sum("g" in x and "b" in x for x in live) / len(live)) if live else 0.0
+
+    def verdict_guarded(self, fact, fact_seats, tau=0.1):
+        """The swarm's contested-block alarm, as a switch: when more than `tau` of the live leaf
+        triples are contested, a coalition may be at work - decide by the flat rule only (any
+        trusted contradiction blocks); otherwise by 'either'."""
+        if self.contested_share(fact, fact_seats) > tau:
+            return self.verdict(fact, only=set(fact_seats))
+        return self.verdict_either(fact, fact_seats)
+
     def verdict(self, fact, only=None):
         """-> (decision, disposition): decision True / False / None (open). `only`: count only
-        these signers (the fact's seats), for a fair comparison with the tree."""
+        these signers (the fact's seats); over seats a decision also needs MIN_VOTES trusted
+        supporters (few voices out of many seats is sparse evidence, not a verdict)."""
         if fact in self.known:
             return self.known[fact], "KNOWN"
+        if only is not None and len(only) >= 3 * MIN_VOTES:
+            held = self.held.get(fact, {})
+            for side in (True, False):
+                n = sum(1 for s, v in held.items() if s in only and v == side and self._mark(s, fact) == "T")
+                if n >= MIN_VOTES:
+                    break
+            else:
+                return None, "OPEN"
         s, c = [], []
         fid = zlib.crc32(str(fact).encode())           # stable across runs (hash() is salted)
         for signer, v in sorted(self.held.get(fact, {}).items()):

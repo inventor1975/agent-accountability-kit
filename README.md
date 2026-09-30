@@ -105,7 +105,7 @@ offline, 3 seeds each) the cube with quorum 2 gave **0 false EARNED in all 12 ce
 quorum 1, up to 35 of 3872 at 45% liars and sparse observation — all of them a single trusted
 "rare" liar heard alone.
 
-**Where it breaks.** Liars who **collude** — lying rarely, but on the *same* facts — defeat any
+**Where the flat count alone breaks** (the zones and alarm below close it in the tested range). Liars who **collude** — lying rarely, but on the *same* facts — defeat any
 count of witnesses: at a third of colluders and sparse observation, 15 false EARNED of 4980 with
 quorum 2, 1 with quorum 3. No voting scheme can tell a coalition that looks honest from the
 truth; only more ground truth, or a trace the consumer checks **itself** (the gate above),
@@ -139,6 +139,33 @@ coalition = all lie on the same facts).
 Regrouping is what defeats an attacker who can see the committee; without it the tree can be
 bought. The price of regrouping in this model: trust builds more slowly (each agent is seated in
 about a third of the facts), so coverage is lower than with a fixed committee that nobody attacks.
+
+### Where it cracks and where it has reserve (stress map, 30 Sept)
+
+Default rule now: `verdict_guarded` — the zones rule above, plus two rules taken from the ZTL
+swarm work: an **alarm** (if more than 20% of the live seat triples hold both a trusted "true"
+and a trusted "false", a coalition may be at work, and only the cautious flat rule may decide)
+and a **minimum of 12 trusted voices** over a fact's seats. The alarm threshold was chosen on
+seeds 0–4; the whole sweep was then re-run twice on fresh seeds (5–9, then 10–14).
+
+Final check, seeds 10–14: 825 runs, 836,640 judgements, **1 false EARNED** — with only 27
+seats and 45% liars (a pool that small can be captured: a coalition holding 45% of all
+agents holds half of 27 random seats 30% of the time; of 81 seats, 18%; of 243, 6%).
+With 81 or 243 seats: 0. Liars were always, rare, sleeper, coalition (all lie on the same facts)
+and **cycle** (wash, earn trust, betray together — the attack that broke the swarm's
+distributed newspaper).
+
+| axis (others at base: liars 1/3, loss 10%, truth on 50% of facts, 81 seats) | decided correctly |
+|---|---|
+| liars 10% / 33% / 45% / 60% | 89.3% / 78.4% / 66.9% / 58.5% — **0 false even at 60%** |
+| cycle attack, betray rate 0.05–0.5, liars up to 45% | 94.5–99.8% |
+| message loss and offline 0% / 10% / 20% / 30% / 40% | 95.4% / 78.4% / 55.5% / 32.1% / 8.2% |
+| share of facts whose truth comes out later 50% / 20% / 5% | 78.4% / 50.9% / 21.2% |
+| seat fill (checkers who actually look) 90% / 70% / 50% / 30% | 78.4% / 57.2% / 47.2% / 11.4% |
+
+**Reserve:** safety — liars up to 60%, colluding and cycling. **Cracks:** liveness, not
+safety — the network (≥ 20% loss), scarce ground truth (≤ 20% of facts), sparse checkers, and
+pools as small as 27. When evidence runs short the system stops deciding; it does not lie.
 
 ## Limits, said plainly
 

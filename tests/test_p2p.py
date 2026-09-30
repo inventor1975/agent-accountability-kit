@@ -117,6 +117,29 @@ check("flat: one trusted contradiction blocks", jz.verdict("fz9", only=set(st_se
 check("tree + alarm: 8 of 9 decide", jz.verdict_combined("fz9", st_seats), (True, "EARNED"))
 check("either: decides when one rule does and none opposes", jz.verdict_either("fz9", st_seats), (True, "EARNED"))
 
+print("p2p — the alarm switch and the 12-vote minimum over seats")
+import aak.p2p as P2  # noqa: E402
+jm = Peer("jm", quorum=2)
+many = [Peer(f"m{i}") for i in range(81)]
+for sg in many[:14]:
+    trusted(jm, sg)
+seat_ids = [sg.id for sg in many]
+jm.receive(many[0].statement("fm", True, 0))
+jm.receive(many[1].statement("fm", True, 0))
+check("81 seats, 2 trusted voices: not a verdict (sparse evidence)", jm.verdict("fm", only=set(seat_ids)), (None, "OPEN"))
+for sg in many[2:12]:
+    jm.receive(sg.statement("fm", True, 0))
+check(f"81 seats, {P2.MIN_VOTES} trusted voices: EARNED", jm.verdict("fm", only=set(seat_ids)), (True, "EARNED"))
+jc = Peer("jc", quorum=2)
+six = [Peer(f"c{i}") for i in range(6)]
+for sg in six:
+    trusted(jc, sg)
+for i, sg in enumerate(six):                                  # triples (T,F,T) (T,F,T): all contested
+    jc.receive(sg.statement("fc", i % 3 != 1, 0))
+ids6 = [sg.id for sg in six]
+check("all live triples contested: share 1.0", jc.contested_share("fc", ids6), 1.0)
+check("the alarm hands a contested fact to the flat rule (blocked)", jc.verdict_guarded("fc", ids6), (None, "OPEN"))
+
 print("p2p — the stand (regression, small and deterministic)")
 import run_p2p as R  # noqa: E402
 r = R.run(0, n=12, rounds=12, use_cube=True)

@@ -27,15 +27,20 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from aak.p2p import Peer, seats  # noqa: E402
 
 
-def lies(strategy, rnd, rng, fact):
+def lies(strategy, rnd, rng, fact, p_betray=0.25):
+    """'cycle' - wash, earn, betray, in collusion (the attack that broke the swarm's newspaper
+    arm): all cycle liars are honest for 8 rounds (earning trust), then betray for 2 rounds on
+    the SAME facts (one shared coin per fact, probability p_betray), then wash again."""
+    coin = (zlib.crc32(fact.encode()) % 1000) / 1000.0
     return (strategy == "always" or (strategy == "sleeper" and rnd >= 12)
             or (strategy == "reform" and rnd < 8) or (strategy == "rare" and rng.random() < 0.1)
-            or (strategy == "coalition" and zlib.crc32(fact.encode()) % 10 == 0))
+            or (strategy == "coalition" and zlib.crc32(fact.encode()) % 10 == 0)
+            or (strategy == "cycle" and rnd % 10 >= 8 and coin < p_betray))
 
 
 def run(seed, n=243, depth=4, rounds=30, facts_per_round=2, observe=0.9, liars=1 / 3,
         strategy="coalition", max_delay=3, drop=0.1, offline=0.1, reveal=0.5, consumers=30,
-        regroup=True, target=0):
+        regroup=True, target=0, p_betray=0.25, explain=False):
     rng = random.Random(f"tree:{seed}")
     agents = [Peer(i, seed=rng.randbytes(32)) for i in range(n)]
     ids0 = [a.id for a in agents]
@@ -66,7 +71,7 @@ def run(seed, n=243, depth=4, rounds=30, facts_per_round=2, observe=0.9, liars=1
                     i = ids.index(sid)
                     if i in down or rng.random() >= observe:
                         continue
-                    val = (not truth[f]) if (i in liar and lies(strategy, r, rng, f)) else truth[f]
+                    val = (not truth[f]) if (i in liar and lies(strategy, r, rng, f, p_betray)) else truth[f]
                     st = agents[i].statement(f, val, r)
                     for j in judges:
                         if rng.random() >= drop:
@@ -85,22 +90,30 @@ def run(seed, n=243, depth=4, rounds=30, facts_per_round=2, observe=0.9, liars=1
                     hidden.append(f)
     res = {}
     warm = [f for f in hidden if int(f[1:].split("f")[0]) >= 5]      # after the warm-up rounds 0-4
-    for arm in ("tree", "treeF", "combined", "either", "flat"):
+    for arm in ("tree", "treeF", "combined", "either", "flat", "g05", "g10", "g20"):
         c = {"false_earned": 0, "right_earned": 0, "open": 0, "right_after_warmup": 0}
         for j, p in judges.items():
             for f in hidden:
                 dec, disp = (p.verdict_tree(f, seat_of[f]) if arm == "tree" else
                              p.verdict_tree(f, seat_of[f], unseat_known_liars=True) if arm == "treeF" else
                              p.verdict_combined(f, seat_of[f]) if arm == "combined" else
-                             p.verdict_either(f, seat_of[f]) if arm == "either"
+                             p.verdict_either(f, seat_of[f]) if arm == "either" else
+                             p.verdict_guarded(f, seat_of[f], tau={"g05": 0.05, "g10": 0.1, "g20": 0.2}[arm]) if arm.startswith("g")
                              else p.verdict(f, only=set(seat_of[f])))
                 if disp == "EARNED":
                     c["right_earned" if dec == truth[f] else "false_earned"] += 1
+                    if explain and arm == "flat" and dec != truth[f]:
+                        held = p.held.get(f, {})
+                        res.setdefault("_why", []).append({"fact": f, "truth": truth[f], "seats": len(seat_of[f]),
+                            "held": sorted((("liar" if ids.index(s) in liar else "honest"), v, p._mark(s, f))
+                                           for s, v in held.items() if s in set(seat_of[f]))})
                     c["right_after_warmup"] += (dec == truth[f]) and f in warm
                 else:
                     c["open"] += 1
         res[arm] = c
-    return {"seed": seed, "n": n, "seats": 3 ** depth, "regroup": regroup, "liars": round(liars, 2), "strategy": strategy,
+    why = res.pop("_why", [])
+    return {"why": why, "seed": seed, "n": n, "seats": 3 ** depth, "regroup": regroup, "p_betray": p_betray,
+            "drop": drop, "reveal": reveal, "liars": round(liars, 2), "strategy": strategy,
             "judged": len(judges) * len(hidden), "judged_after_warmup": len(judges) * len(warm), **{f"{a}_{k}": v for a in res for k, v in res[a].items()},
             "seconds": round(time.time() - t0, 1)}
 
