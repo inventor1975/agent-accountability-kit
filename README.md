@@ -163,6 +163,13 @@ distributed newspaper).
 | share of facts whose truth comes out later 50% / 20% / 5% | 78.4% / 50.9% / 21.2% |
 | seat fill (checkers who actually look) 90% / 70% / 50% / 30% | 78.4% / 57.2% / 47.2% / 11.4% |
 
+**Full validation of the final rule** (then run on everything above again, and more):
+3,550 runs, 3,775,500 judgements — the axes on seeds 0–9 (0 false EARNED of 1,640,010), a grid
+of combinations — liars 20–55% × loss 0–30% × truth on 20% or 50% of facts, 10 seeds each
+(0 of 1,865,430), and an attacker who corrupts 30, 50 or 70 members of the committee it can see:
+**with regrouping 0 false EARNED at every budget; without it, 16 at 50 and 753 (1.65%) at 70.**
+Re-drawing the checkers for every fact is load-bearing — do not turn it off.
+
 **Reserve:** safety — liars up to 60%, colluding and cycling. **Cracks:** liveness, not
 safety — the network (≥ 20% loss), scarce ground truth (≤ 20% of facts), sparse checkers, and
 pools as small as 27. When evidence runs short the system stops deciding; it does not lie.
