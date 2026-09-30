@@ -17,6 +17,16 @@ and humans measures when a word can be relied on and when evidence is required.
 and trust cube, a deterministic demo (two agents and a human), a test stand; ZTL kernel vendored
 (upstream: Lean proofs). The same mechanism runs daily on the ZTL project's own AI assistant.
 
+**No centre (added 30 Sept, evening).** `aak/p2p.py`: every agent is its own ZTL judge node
+(public `ztljudgenode` from ZTL); signed statements over an unreliable network (delay, loss,
+offline); trust per signer from delayed truth (the cube); proof-of-fault by re-computation;
+quorum 2. Stand: 30 agents, a third lying in six ways, 3 seeds — 0 false EARNED, 90–93% of the
+never-revealed facts decided correctly (1351/1460, 1551/1660, 1590/1760); without the cube,
+half as many. Honest limit: colluding liars who look honest defeat any witness count
+(measured); only ground truth or self-checked traces stop them. This answers the RFP's
+"without relying on a single central authority: mutual monitoring and cross-checking among
+agents".
+
 **Swarm work.** The decentralized trust experiments (trust as a ZTL mark from delayed truth,
 5K–100K agents) were done by the curator with the second assistant; the curator has cleared
 including them.
