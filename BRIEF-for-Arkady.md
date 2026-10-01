@@ -15,7 +15,8 @@ and humans measures when a word can be relied on and when evidence is required.
 
 **What exists today.** Gate, trace checks (file / count / url / commit / self), outcome journal
 and trust cube, a deterministic demo (two agents and a human), a test stand; ZTL kernel vendored
-(upstream: Lean proofs). The same mechanism runs daily on the ZTL project's own AI assistant.
+(upstream: Lean proofs). The same mechanism ran on the ZTL project's own AI assistant
+(29 Sept – 1 Oct 2026) and was then retired there: it caught slips, not losses of meaning.
 
 **No centre (added 30 Sept, evening).** `aak/p2p.py`: every agent is its own ZTL judge node
 (public `ztljudgenode` from ZTL); signed statements over an unreliable network (delay, loss,

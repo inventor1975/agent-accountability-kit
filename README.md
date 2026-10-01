@@ -140,6 +140,16 @@ Regrouping is what defeats an attacker who can see the committee; without it the
 bought. The price of regrouping in this model: trust builds more slowly (each agent is seated in
 about a third of the facts), so coverage is lower than with a fixed committee that nobody attacks.
 
+**The tree's own bound, proved.** In Lean, on the empty axiom list (ZTL `lean/ZMajority.lean`,
+commit a77727b): a tree of triples of depth d says "false" only if at least 2^d of its seats
+lie, empty seats never help a lie, and 2^d is enough — there is a placement where 2^d liars,
+every other seat honest, carry the verdict. At depth 4 that is **16 of 81 seats, about 20%**.
+So the tree alone is *weaker* than a flat majority against an attacker who chooses where to sit;
+what protects it is that nobody chooses — seats by public randomness, re-drawn per fact — and
+the alarm. That part is measured by simulation above, not proved. The same file proves that
+the triple's table is the ZTL judge's *disposition* of `(a&b)|(a&c)|(b&c)` (T exactly when
+EARNED, F exactly when REFUTED), not the formula's value.
+
 ### Where it cracks and where it has reserve (stress map, 30 Sept)
 
 Default rule now: `verdict_guarded` — the zones rule above, plus two rules taken from the ZTL
@@ -185,10 +195,13 @@ pools as small as 27. When evidence runs short the system stops deciding; it doe
 
 ## Where it comes from
 
-Built in the ZTL project (https://github.com/inventor1975/ZTL). It generalises gates that run
-daily in that project on an AI assistant's own answers: in its first days they refused answers
+Built in the ZTL project (https://github.com/inventor1975/ZTL). It generalises gates that ran
+in that project on an AI assistant's own answers (29 Sept – 1 Oct 2026): they refused answers
 whose premises failed their traces, including a wrong count and a mis-quoted file, before the
-answers reached the human. The ZTL kernel is vendored unchanged in `aak/core/` (see VENDORED.md).
+answers reached the human. They were then retired by the project's curator: of 295 checked
+drafts, 87 were returned, mostly for bookkeeping (a number missing from the record), and the
+real catches were few — they caught slips, not losses of meaning. The outward gates (push,
+publish, deploy) stay. The ZTL kernel is vendored unchanged in `aak/core/` (see VENDORED.md).
 
 ## License and disclosure
 
