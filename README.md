@@ -186,6 +186,20 @@ pools as small as 27. When evidence runs short the system stops deciding; it doe
 
 ## Limits, said plainly
 
+- **"No centre" rests on four bridges** (the ZTL lens on the kit's own claim, 1 Oct: signatures,
+  the tree's bound and the simulation are earned; these are not):
+  1. *Fact names are not chosen by the attacker.* Seats come from the hash of the fact's name, so
+     an agent that words its own claim can try wordings until its coalition sits well. Measured
+     with the kit's own `seats`/`fold`, 243 agents, all seats speaking and trusted: the **bare
+     tree** is captured by a 33% coalition on 1 name in 107 (the first after 35 tries); the
+     **default rule** (alarm + contested switch) was captured on **0 of 20,000,000** names at 33%
+     and at 45%. Not measured: the same under message loss, where silent honest seats shrink
+     the alarm's denominator. Deployments should not let a claimant name its own fact freely.
+  2. *Delayed truth comes from a source the liars do not control.* Trust is learned from it; a
+     single truth publisher is a centre by another name.
+  3. *The simulation transfers to real model agents* — the first milestone, not yet done.
+  4. *One key is one independent party.* No act inside the kit can witness this (Sybil
+     identities); it needs an identity layer outside the kit.
 - The kit judges the **ground an agent lays**, not the meaning of its prose. A claim made in
   words and left off the ground is not seen; only numbers and commit hashes are checked for
   coverage mechanically.
